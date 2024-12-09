@@ -62,11 +62,15 @@ if prompt := st.chat_input(placeholder="Ask me anything..."):
         tools,
         llm,
         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        handle_parsing_errors=True
+        handle_parsing_errors=True,
+        verbose=False  # Suppress detailed interaction logs
     )
 
     with st.chat_message("assistant"):
-        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
-        response = search_agent.run(st.session_state.messages, callbacks=[st_cb])
-        st.session_state.messages.append({'role': 'assistant', "content": response})
-        st.write(response)
+        try:
+            # Execute the agent's response and display it
+            response = search_agent.run(st.session_state.messages)
+            st.session_state.messages.append({'role': 'assistant', "content": response})
+            st.write(response)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
